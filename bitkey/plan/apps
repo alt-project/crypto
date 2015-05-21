@@ -1,0 +1,14 @@
+mrxvt
+vim-gtk
+chromium
+myspell-en-us
+thunar
+thunar-volman
+gvfs
+eject
+
+python-setuptools       /* electrum: installation */
+python-sip              /* electrum: virtual package providing sip-api-8.1 */
+python-qt4              /* electrum: qt gui interface */
+patch                   /* electrum: apply patches */
+

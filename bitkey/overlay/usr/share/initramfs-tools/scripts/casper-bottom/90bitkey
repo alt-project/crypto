@@ -1,0 +1,35 @@
+#!/bin/sh
+
+PREREQ=""
+DESCRIPTION="Setup system for bitkey selected boot option..."
+
+for x in $(cat /proc/cmdline); do
+    case $x in
+        bitkey=*) mode="${x#bitkey=}";;
+    esac
+done
+
+. /scripts/casper-functions
+
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case $1 in
+# get pre-requisites
+prereqs)
+    prereqs
+    exit 0
+    ;;
+esac
+
+if [ -e /root/usr/lib/bitkey.d ]; then
+    log_begin_msg "$DESCRIPTION"
+    mount -t proc proc-chroot /root/proc
+    chroot /root sh -c "run-parts -a $mode /usr/lib/bitkey.d"
+    umount /root/proc
+    log_end_msg
+fi
+
+exit 0

@@ -1,0 +1,68 @@
+#!/bin/sh
+
+mode=$1
+CONFIG=/home/user/.wbar
+
+cat >$CONFIG<<EOF
+i: /usr/share/wbar/iconpack/wbar.osx/osxbarback.png
+c: wbar -bpress -pos center -zoomf 1.3 -isize 72 -idist 4 -jumpf 1 -nanim 3 -balfa 25
+t: /usr/share/fonts/truetype/ttf-dejavu/DejaVuSans-Bold.ttf/10
+
+i: /usr/local/share/icons/electrum.png
+c: electrum-wrapper $mode >/dev/null
+t: electrum ($mode)
+
+EOF
+
+if [ ! "$mode" = "cold-offline" ]; then
+cat >>$CONFIG<<EOF
+i: /usr/share/pixmaps/chromium.png
+c: chromium-wrapper
+t: browser
+
+EOF
+fi
+
+cat >>$CONFIG<<EOF
+i: /usr/share/icons/gnome/48x48/apps/fonts.png
+c: chromium-offline-app file:///usr/local/src/bitaddress.org/bitaddress.org.html
+t: bitaddress
+
+i: /usr/local/share/icons/qrcode.png
+c: chromium-offline-app file:///usr/local/src/qrcode/index.html
+t: qrcode generator
+
+i: /usr/share/icons/gnome/48x48/status/stock_lock.png
+c: chromium-offline-app file:///usr/local/src/zxcvbn/index.html
+t: password strength
+
+i: /usr/share/icons/gnome/48x48/apps/terminal.png
+c: mrxvt
+t: terminal
+
+i: /usr/share/icons/gnome/48x48/apps/accessories-text-editor.png
+c: gvim -y -n
+t: editor
+
+i: /usr/share/icons/gnome/48x48/apps/file-manager.png
+c: thunar /media
+t: file manager
+
+EOF
+
+if [ ! "$mode" = "cold-offline" ]; then
+cat >>$CONFIG<<EOF
+i: /usr/share/icons/gnome/48x48/devices/network-wireless.png
+c: wicd-client --no-tray
+t: network
+
+EOF
+fi
+
+cat >>$CONFIG<<EOF
+i: /usr/share/icons/gnome/48x48/actions/system-shutdown.png
+c: shutdown-prompt
+t: shutdown
+
+EOF
+

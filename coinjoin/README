@@ -1,0 +1,115 @@
+RUNNING:
+
+to run the client install Python PyQt4, and sx (see http://sx.dyne.org)
+
+  # apt-get install python-pyqt4
+  # wget http://sx.dyne.org/install-sx.sh
+  # bash install-sx.sh
+
+Tor control configuration:
+  (not needed at the moment)
+  In order to allow the application to reset your tor connection between coinjoin stages, you first need to
+  setup your tor control password (HashedControlPassword in /etc/tor/torrc, also uncomment ControlPort line).
+
+  Then edit client.py and set your control password there.
+
+then run it:
+
+  $ python client.py
+
+TECHNICAL INFO:
+
+Clients use the server as a rendezvous point.
+
+The goal of the clients is to get a list of N inputs and N outputs
+for a specific locked amount, so a transaction can be created by all
+to sign.
+
+Since clients won't sign the transaction if they don't see their
+inputs and outputs, or amounts match, the problem is just getting 
+inputs and outputs in a way so they can't be correlated to know who
+owns the outputs.
+
+In our case the server takes up the following tasks:
+ 1) locks "rooms" for  number of participants
+ 2) collects outputs, then inputs for all participants, then shows
+   the collected information, together with a transaction with all
+   the info, clients have to sign the transaction and return it back.
+ 3) mixes the transactions into one final transaction signed by all,
+    and broadcasts it to clients and to the network.
+
+The server doesn't hold funds, and the client can check the final
+transaction before signing it so no trust is put on the server.
+
+The server keeps all information in memory.
+
+The setup is implemented with the premise that server and client can't
+see each other's ip, specially the server can't see the client ip. To
+avoid user error we enforce the service to run over tor, but other
+anonymizing network could be used.
+
+POSSIBLE ATTACKS:
+
+We've thought about the possible attacks that can be done on this approach:
+
+ - Sybil attack:
+   An attacker with many nodes could cheaply (just transaction costs) run many transactions to basically isolate other users.
+ - Ddos attack:
+   Attackers can boicott ongoing transactions so users have to restart again and again most probably also leaking privacy information specially if outputs are retried.
+
+FUTURE WORK:
+
+This is intended as a first proof of concept for a "coinjoin" protocol
+where different rendezvous mechanisms will be tested in order to collect inputs and outputs for creating multi-sig transactions among different wallets.
+
+Server mechanisms ease the practical access by users and initial deployment, totally serverless mechanisms should follow using readily available procedures.
+
+PROTOCOL:
+
+ - client is pyqt + sx
+ - server is gevent + flask + sx
+
+Client and server speak a json protocol where a room is created
+for each url of the form:
+
+   <server>/g/<room_name>
+
+or
+
+   <server>/g/[public]<room_name>/<participants>/<amount>
+
+so a sample url would be:
+
+   http://7vxb75tbnszhy2go.onion/g/goy7yeiXopethi
+
+The first time a url is accessed with GET the room gets created
+and starts collecting information.
+
+Rooms go through several states or stages, one at a time:
+ * outputs: Collecting outputs
+ * inputs: Collecting inputs
+ * signatures: Collecting signatures
+ * final: final tx available (and broadcasted)
+
+In each stage each client has to send their specific argument, after
+collecting inputs and outputs a tx for signing is generated and each
+client signs their own, finally the server mixes the result into the
+final tx.
+
+Clients send their input through POST to the room url:
+
+POST parameters:
+ - input: send our client input (only allowed in inputs stage)
+ - output: send our client output (only allowed in outputs stage)
+ - sig: send out signature (only allowed in signature stage)
+
+LICENSE:
+ This work is released under AGPL v3, check COPYRIGHT file for more details.
+
+ Since this is quite low level work we're happy to see it used in other places, although we're more comfortable with
+ releasing the code under AGPL to promote a more open ecosystem, please get in touch with us if you want to incorporate
+ our code into incompatible licenses.
+
+
+
+

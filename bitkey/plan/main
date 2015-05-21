@@ -1,0 +1,22 @@
+#include <x11>
+#include <boot>
+#include <laptop>
+#include <hwdetect>
+
+#include "net"
+#include "system"
+#include "desktop"
+#include "apps"
+
+firmware-linux-free
+firmware-linux-nonfree
+firmware-atheros
+firmware-bnx2
+firmware-bnx2x
+firmware-brcm80211
+firmware-ipw2x00
+firmware-iwlwifi
+firmware-libertas
+firmware-ralink
+firmware-realtek
+
